@@ -8,16 +8,24 @@ import (
 	// "strings"
 )
 
-type Request struct {
-	RequestLine RequestLine
-	state       parserState
-}
+type parserState string
 
 type RequestLine struct {
 	HttpVersion   string
 	RequestTarget string
 	Method        string
 }
+
+type Request struct {
+	RequestLine RequestLine
+	state       parserState
+}
+
+const (
+	StateInit  parserState = "init"
+	StateDone  parserState = "done"
+	StateError parserState = "error"
+)
 
 func newRequest() *Request {
 	return &Request{
@@ -29,14 +37,6 @@ var ERROR_BAD_START_LINE = fmt.Errorf("malformed req-line")
 var ERROR_BAD_HTTP_VERSION = fmt.Errorf("bad http version")
 var ERROR_REQ_IN_ERR_STATE = fmt.Errorf("err req state")
 var SEPARATOR = []byte("\r\n")
-
-type parserState string
-
-const (
-	StateInit  parserState = "init"
-	StateDone  parserState = "done"
-	StateError parserState = "error"
-)
 
 func parseRequestLine(b []byte) (*RequestLine, int, error) {
 	idx := bytes.Index(b, SEPARATOR)
